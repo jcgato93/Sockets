@@ -4,9 +4,8 @@
  * and open the template in the editor.
  */
 package sockets;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,13 +14,17 @@ import javax.swing.JOptionPane;
  *
  * @author GATO
  */
-public class Cliente extends javax.swing.JFrame {
+public class Cliente extends javax.swing.JFrame implements Runnable{
 
     /**
      * Creates new form Cliente
      */
     public Cliente() {
         initComponents();
+        
+        Thread mihilo=new Thread(this);
+        mihilo.start();//inicia el hilo que coloca a la escucha el jTextArea
+        
     }
 
     /**
@@ -36,9 +39,17 @@ public class Cliente extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         txtCampo1 = new javax.swing.JTextField();
         btnEnviar = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        Areatxt_campochat = new javax.swing.JTextArea();
+        txtnick = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        txtIp = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setTitle("Cliente");
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
 
         btnEnviar.setText("Enviar");
         btnEnviar.addActionListener(new java.awt.event.ActionListener() {
@@ -47,31 +58,74 @@ public class Cliente extends javax.swing.JFrame {
             }
         });
 
+        Areatxt_campochat.setColumns(20);
+        Areatxt_campochat.setRows(5);
+        jScrollPane1.setViewportView(Areatxt_campochat);
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .addComponent(txtCampo1, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(44, 44, 44)
-                        .addComponent(txtCampo1, javax.swing.GroupLayout.PREFERRED_SIZE, 278, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(154, 154, 154)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnEnviar)))
-                .addContainerGap(58, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(txtCampo1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(txtCampo1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnEnviar)
-                .addContainerGap(195, Short.MAX_VALUE))
+                .addGap(5, 5, 5))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 380, 280));
+        jLabel1.setText("Nick Name");
+
+        jLabel2.setText("IP ");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(txtnick, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(101, 101, 101)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtIp, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtnick, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtIp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -84,18 +138,30 @@ public class Cliente extends javax.swing.JFrame {
              */
             Socket misocket=new Socket("192.168.1.24",9999);
             
+            PaqueteEnvio datos=new PaqueteEnvio();
+            
+            datos.setNick(this.txtnick.getText());
+            datos.setIp(this.txtIp.getText());
+            datos.setMensaje(this.txtCampo1.getText());
+            
+            ObjectOutputStream paquete_datos=new ObjectOutputStream(misocket.getOutputStream()); // Flujo de salida con el objeto paqute_datos
+            
+            paquete_datos.writeObject(datos);
+            
+            misocket.close();
             //Crear Flujo de Datos de Salida
-            DataOutputStream flujo_salida=new DataOutputStream(misocket.getOutputStream());
+            //DataOutputStream flujo_salida=new DataOutputStream(misocket.getOutputStream());
             
-            flujo_salida.writeUTF(this.txtCampo1.getText());//ingresa al flujo de datos lo que este en la caja de texto txtCampo1
+            //flujo_salida.writeUTF(this.txtCampo1.getText());//ingresa al flujo de datos lo que este en la caja de texto txtCampo1
             
-            flujo_salida.close();//cierre de flujo de datos
-            
-        } catch (IOException ex) {
+           // flujo_salida.close();//cierre de flujo de datos
+              
+        } 
+        catch (IOException ex) {
             JOptionPane.showMessageDialog(null,ex.getMessage());
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
-            
+          
       
         
         
@@ -137,8 +203,48 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextArea Areatxt_campochat;
     private javax.swing.JButton btnEnviar;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtCampo1;
+    private javax.swing.JTextField txtIp;
+    private javax.swing.JTextField txtnick;
     // End of variables declaration//GEN-END:variables
+
+   
+    
+    @Override
+    public void run() {
+        try {
+            
+            ServerSocket servidor_cliente=new ServerSocket(9090);
+            
+            Socket cliente;
+            
+            PaqueteEnvio paqueteRecibido;
+            
+            while (true) {                
+                
+                cliente=servidor_cliente.accept();//acepta todas las conexiones por el puerto seleccionado
+                
+                ObjectInputStream flujoentrada=new ObjectInputStream(cliente.getInputStream());
+                
+               paqueteRecibido=(PaqueteEnvio) flujoentrada.readObject();//informacion que llega por parte del servidor
+               
+               this.Areatxt_campochat.append("\n"+paqueteRecibido.getNick()+" : "+paqueteRecibido.getMensaje());
+               
+            }
+            
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(Areatxt_campochat, e.getMessage());
+        }
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+    
 }

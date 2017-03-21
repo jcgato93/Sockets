@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import java.io.*;
 
 
 public class Servidor extends javax.swing.JFrame implements Runnable{
@@ -108,33 +109,44 @@ public class Servidor extends javax.swing.JFrame implements Runnable{
             //----1)
             ServerSocket servidor=new ServerSocket(9999);//se instancia un obj de ServerSocket especificando el puerto que estara a la escucha
             
+            String nick,ip,mensaje;
+            
+            PaqueteEnvio paquete_recibido;
+            
             while(true){//se crea un bucle infinito para cada vez que se cierre la conexion , se ejecuete nuevamente
                 
 
             //----2)
             Socket misocket=servidor.accept();//se crea un obj Socket aceptando cualquier conexion del exterior
             
+            //----3) rescata los datos enviados desde la aplicacion cliente
+            ObjectInputStream paquete_datos=new ObjectInputStream(misocket.getInputStream());
             
-            //----3) crear el flujo de datos de entrada la aplicacion cliente
-            DataInputStream flujo_entrada=new DataInputStream(misocket.getInputStream());
-
+            paquete_recibido=(PaqueteEnvio) paquete_datos.readObject();
+         
+            nick=paquete_recibido.getNick();
+            ip=paquete_recibido.getIp();
+            mensaje=paquete_recibido.getMensaje();
             
-            //----4)
-            String mensaje_texto=flujo_entrada.readUTF();//lee el flujo de entrada y lo almecena en una variable String
+            this.Areatxt_areatexto.setText("\n"+nick+" : "+mensaje+" para "+ip);
             
             
-            this.Areatxt_areatexto.append("\n"+mensaje_texto);//agrega el texto almacenado en mensaje_texto
+            Socket envia_destinatario=new Socket(ip,9090);//Socket por el cual se reenviara el mensaje al destinatario
             
+            ObjectOutputStream paqueteReenvio=new ObjectOutputStream(envia_destinatario.getOutputStream());
+            
+            paqueteReenvio.writeObject(paquete_recibido);//se sobre escribe el flujo de salida con la misma informacion del paquete_recibido
+            
+            envia_destinatario.close();//se cierra la conexion o el puente de datos
             
             //----5)
             misocket.close();//se cierra la conexion
             }
             //--------------------------------------------------------------------------------
-        } catch (IOException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
+        } 
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
