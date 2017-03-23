@@ -132,6 +132,9 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
 
     private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
         
+        //para que se valla acumulando toda la conversacion
+        this.Areatxt_campochat.append("\n"+this.txtCampo1.getText());
+        
         try {
             /**
              * pide como parametros la direccion ip cliente y el puerto de salida

@@ -128,7 +128,7 @@ public class Servidor extends javax.swing.JFrame implements Runnable{
             ip=paquete_recibido.getIp();
             mensaje=paquete_recibido.getMensaje();
             
-            this.Areatxt_areatexto.setText("\n"+nick+" : "+mensaje+" para "+ip);
+            this.Areatxt_areatexto.setText(this.Areatxt_areatexto.getText()+"\n"+nick+" : "+mensaje+" para "+ip);
             
             
             Socket envia_destinatario=new Socket(ip,9090);//Socket por el cual se reenviara el mensaje al destinatario
@@ -136,6 +136,8 @@ public class Servidor extends javax.swing.JFrame implements Runnable{
             ObjectOutputStream paqueteReenvio=new ObjectOutputStream(envia_destinatario.getOutputStream());
             
             paqueteReenvio.writeObject(paquete_recibido);//se sobre escribe el flujo de salida con la misma informacion del paquete_recibido
+            
+            paqueteReenvio.close();//se cierra el flojo de datos
             
             envia_destinatario.close();//se cierra la conexion o el puente de datos
             
