@@ -7,6 +7,7 @@ package sockets;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -25,6 +26,12 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
         Thread mihilo=new Thread(this);
         mihilo.start();//inicia el hilo que coloca a la escucha el jTextArea
         
+        //se trae el nick del usuario y lo remplaza en el label txtnick
+         this.txtnick.setText(JOptionPane.showInputDialog(null,"Tu nombre","Entrada Sistema",3)); 
+        
+ 
+                
+        
     }
 
     /**
@@ -41,13 +48,17 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
         btnEnviar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         Areatxt_campochat = new javax.swing.JTextArea();
-        txtnick = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
-        txtIp = new javax.swing.JTextField();
+        txtnick = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        cbIP = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Cliente");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
 
@@ -88,7 +99,7 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
                 .addGap(5, 5, 5))
         );
 
-        jLabel1.setText("Nick Name");
+        txtnick.setText("Nick Name");
 
         jLabel2.setText("IP ");
 
@@ -102,27 +113,23 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
                         .addGap(10, 10, 10)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
+                        .addGap(32, 32, 32)
+                        .addComponent(txtnick)
+                        .addGap(140, 140, 140)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(txtnick, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(101, 101, 101)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtIp, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2))))
+                            .addComponent(jLabel2)
+                            .addComponent(cbIP, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
+                .addComponent(jLabel2)
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtnick, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtIp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtnick)
+                    .addComponent(cbIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -144,7 +151,7 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
             PaqueteEnvio datos=new PaqueteEnvio();
             
             datos.setNick(this.txtnick.getText());
-            datos.setIp(this.txtIp.getText());
+            datos.setIp(this.cbIP.getSelectedItem().toString());
             datos.setMensaje(this.txtCampo1.getText());
             
             ObjectOutputStream paquete_datos=new ObjectOutputStream(misocket.getOutputStream()); // Flujo de salida con el objeto paqute_datos
@@ -169,6 +176,39 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
         
         
     }//GEN-LAST:event_btnEnviarActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        
+        //------------Se ejecuta al Abrirse este formulario ----------------
+        
+        //------------Envia una señal al servidor para dar a conocer que esta Online (en linea)
+        
+        
+        
+        
+        try {
+            //------------------------ip del server , puerto 
+            Socket miSocket=new Socket("192.168.1.24",9999);
+            
+            PaqueteEnvio datos=new PaqueteEnvio();
+            
+            datos.setMensaje(" Online");
+            
+            ObjectOutputStream paquete_datos=new ObjectOutputStream(miSocket.getOutputStream());
+            
+            paquete_datos.writeObject(datos);
+            
+            miSocket.close();
+            
+        } catch (Exception e) {
+            
+        }
+        
+        //-----------------------------------------------------------------------------
+        
+        
+        
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -208,13 +248,12 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea Areatxt_campochat;
     private javax.swing.JButton btnEnviar;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JComboBox<String> cbIP;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField txtCampo1;
-    private javax.swing.JTextField txtIp;
-    private javax.swing.JTextField txtnick;
+    private javax.swing.JLabel txtnick;
     // End of variables declaration//GEN-END:variables
 
    
@@ -239,6 +278,26 @@ public class Cliente extends javax.swing.JFrame implements Runnable{
                
                this.Areatxt_campochat.append("\n"+paqueteRecibido.getNick()+" : "+paqueteRecibido.getMensaje());
                
+               
+               if(!paqueteRecibido.getMensaje().equals(" Online"))
+               {
+                  this.Areatxt_campochat.append("\n"+paqueteRecibido.getNick()+" : "+paqueteRecibido.getMensaje());
+               
+               }else
+                 {
+                     //-------LLena el JCombobox cbIP  con las direcciones ip de los usuarios conectados 
+                     ArrayList <String> IpsMenu=new ArrayList<String>();
+                     
+                     IpsMenu=paqueteRecibido.getIps();
+                     
+                      this.cbIP.removeAllItems();//remueve primero todos los elementos para evitar duplicidad de direcciones
+                     
+                     for (String string : IpsMenu) {
+             
+                         this.cbIP.addItem(string);
+                     }
+                      
+                 }
             }
             
         } catch (Exception e) {

@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import java.io.*;
+import java.net.InetAddress;
+import java.util.*;
 
 
 public class Servidor extends javax.swing.JFrame implements Runnable{
@@ -111,14 +113,16 @@ public class Servidor extends javax.swing.JFrame implements Runnable{
             
             String nick,ip,mensaje;
             
+            ArrayList <String> listaip=new ArrayList<String>();
+            
             PaqueteEnvio paquete_recibido;
             
             while(true){//se crea un bucle infinito para cada vez que se cierre la conexion , se ejecuete nuevamente
                 
-
+                
             //----2)
             Socket misocket=servidor.accept();//se crea un obj Socket aceptando cualquier conexion del exterior
-            
+    
             //----3) rescata los datos enviados desde la aplicacion cliente
             ObjectInputStream paquete_datos=new ObjectInputStream(misocket.getInputStream());
             
@@ -128,22 +132,58 @@ public class Servidor extends javax.swing.JFrame implements Runnable{
             ip=paquete_recibido.getIp();
             mensaje=paquete_recibido.getMensaje();
             
-            this.Areatxt_areatexto.setText(this.Areatxt_areatexto.getText()+"\n"+nick+" : "+mensaje+" para "+ip);
+            if(!mensaje.equals(" Online"))
+            {
             
-            
-            Socket envia_destinatario=new Socket(ip,9090);//Socket por el cual se reenviara el mensaje al destinatario
-            
-            ObjectOutputStream paqueteReenvio=new ObjectOutputStream(envia_destinatario.getOutputStream());
-            
-            paqueteReenvio.writeObject(paquete_recibido);//se sobre escribe el flujo de salida con la misma informacion del paquete_recibido
-            
-            paqueteReenvio.close();//se cierra el flojo de datos
-            
-            envia_destinatario.close();//se cierra la conexion o el puente de datos
-            
-            //----5)
-            misocket.close();//se cierra la conexion
+                    this.Areatxt_areatexto.setText(this.Areatxt_areatexto.getText()+"\n"+nick+" : "+mensaje+" para "+ip);
+
+
+                    Socket envia_destinatario=new Socket(ip,9090);//Socket por el cual se reenviara el mensaje al destinatario
+
+                    ObjectOutputStream paqueteReenvio=new ObjectOutputStream(envia_destinatario.getOutputStream());
+
+                    paqueteReenvio.writeObject(paquete_recibido);//se sobre escribe el flujo de salida con la misma informacion del paquete_recibido
+
+                    paqueteReenvio.close();//se cierra el flojo de datos
+
+                    envia_destinatario.close();//se cierra la conexion o el puente de datos
+
+                    //----5)
+                    misocket.close();//se cierra la conexion
+            }else{
+              //---------DETECTA QUIEN ESTA ONLINE---------------
+                    
+                    InetAddress localizacion=misocket.getInetAddress();//captura la ip del host conectado al servidor
+                    
+                    String IpRemota=localizacion.getHostAddress();//captura el String de la ip
+          
+                    System.out.println(" online "+IpRemota);
+                    
+                    listaip.add(IpRemota);//agrega la ip a una lista para ver quienes estan conectados
+                    
+                    paquete_recibido.setIps(listaip);//ingresa la lista de ip's en el paquete que sera reenviado
+                    
+                    
+                    for (String string : listaip) {
+                     
+                        Socket envia_destinatario=new Socket(string,9090);//Socket por el cual se reenviara el mensaje al destinatario
+
+                    ObjectOutputStream paqueteReenvio=new ObjectOutputStream(envia_destinatario.getOutputStream());
+
+                    paqueteReenvio.writeObject(paquete_recibido);//se sobre escribe el flujo de salida con la misma informacion del paquete_recibido
+
+                    paqueteReenvio.close();//se cierra el flojo de datos
+
+                    envia_destinatario.close();//se cierra la conexion o el puente de datos
+
+                    //----5)
+                    misocket.close();
+                        
+                }
+                    
+               //-------------------------------------------------  
             }
+        }
             //--------------------------------------------------------------------------------
         } catch (IOException | ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
